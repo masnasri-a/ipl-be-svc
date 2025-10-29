@@ -11,9 +11,8 @@ import (
 // ErrorHandler is a middleware that handles panics and errors
 func ErrorHandler() gin.HandlerFunc {
 	return gin.CustomRecovery(func(c *gin.Context, recovered interface{}) {
-		if err, ok := recovered.(string); ok {
-			utils.InternalServerErrorResponse(c, "Internal server error", 
-				gin.Error{Err: gin.Error{Err: gin.Error{Err: nil}}}.Err)
+		if _, ok := recovered.(string); ok {
+			utils.InternalServerErrorResponse(c, "Internal server error", nil)
 		} else {
 			utils.InternalServerErrorResponse(c, "Internal server error", nil)
 		}
