@@ -13,6 +13,7 @@ type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
 	Logger   LoggerConfig
+	Doku     DokuConfig
 }
 
 // ServerConfig holds server configuration
@@ -35,6 +36,13 @@ type DatabaseConfig struct {
 type LoggerConfig struct {
 	Level  string
 	Format string
+}
+
+// DokuConfig holds DOKU payment configuration
+type DokuConfig struct {
+	ClientID  string
+	SecretKey string
+	BaseURL   string
 }
 
 // Load loads configuration from environment variables
@@ -61,6 +69,11 @@ func Load() (*Config, error) {
 		Logger: LoggerConfig{
 			Level:  getEnv("LOG_LEVEL", "debug"),
 			Format: getEnv("LOG_FORMAT", "json"),
+		},
+		Doku: DokuConfig{
+			ClientID:  getEnv("DOKU_CLIENT_ID", "BRN-0241-1762176502792"),
+			SecretKey: getEnv("DOKU_SECRET_KEY", "SK-PaILsZudZTytTSTNCmUV"),
+			BaseURL:   getEnv("DOKU_BASE_URL", "https://api-sandbox.doku.com"),
 		},
 	}
 

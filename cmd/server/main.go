@@ -49,7 +49,7 @@ func main() {
 	docs.SwaggerInfo.Description = "RESTful API for IPL Backend Service with menu management"
 	docs.SwaggerInfo.Version = "1.0"
 	docs.SwaggerInfo.Host = fmt.Sprintf("localhost:%s", cfg.Server.Port)
-	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.BasePath = ""
 	docs.SwaggerInfo.Schemes = []string{"http"}
 
 	// Initialize logger
@@ -74,9 +74,12 @@ func main() {
 
 	// Initialize repositories
 	menuRepo := repository.NewMenuRepository(db.DB)
+	billingRepo := repository.NewBillingRepository(db.DB)
 
 	// Initialize services
 	menuService := service.NewMenuService(menuRepo)
+	dokuService := service.NewDokuService(appLogger)
+	paymentService := service.NewPaymentService(billingRepo, dokuService, appLogger)
 
 	// Initialize Gin router
 	router := gin.New()
@@ -89,7 +92,7 @@ func main() {
 	router.NoMethod(middleware.NoMethodHandler())
 
 	// Setup routes
-	handler.SetupRoutes(router, menuService)
+	handler.SetupRoutes(router, menuService, paymentService, appLogger)
 
 	// Create HTTP server
 	server := &http.Server{

@@ -6,15 +6,19 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 
 	"ipl-be-svc/internal/service"
+	"ipl-be-svc/pkg/logger"
 )
 
 // Routes sets up all API routes
 func SetupRoutes(
 	router *gin.Engine,
 	menuService service.MenuService,
+	paymentService service.PaymentService,
+	logger *logger.Logger,
 ) {
 	// Initialize handlers
 	menuHandler := NewMenuHandler(menuService)
+	paymentHandler := NewPaymentHandler(paymentService, logger)
 
 	// Swagger documentation
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -29,6 +33,12 @@ func SetupRoutes(
 		menus := v1.Group("/menus")
 		{
 			menus.GET("/user/:id", menuHandler.GetMenusByUserID)
+		}
+
+		// Payment routes
+		payments := v1.Group("/payments")
+		{
+			payments.POST("/billing/:id/link", paymentHandler.CreatePaymentLink)
 		}
 	}
 }

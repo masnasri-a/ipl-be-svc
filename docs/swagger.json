@@ -17,11 +17,8 @@
     },
     "host": "localhost:8080",
     "basePath": "/api/v1",
-    "schemes": [
-        "http"
-    ],
     "paths": {
-        "/health": {
+        "/api/v1/health": {
             "get": {
                 "description": "Check if the service is running",
                 "consumes": [
@@ -45,7 +42,7 @@
                 }
             }
         },
-        "/menus/user/{user_id}": {
+        "/api/v1/menus/user/{user_id}": {
             "get": {
                 "description": "Get list of menus accessible by a specific user ID",
                 "consumes": [
@@ -109,6 +106,59 @@
                     }
                 }
             }
+        },
+        "/api/v1/payments/billing/{id}/link": {
+            "post": {
+                "description": "Create a DOKU payment link for a billing record by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payments"
+                ],
+                "summary": "Create payment link",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Billing ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment link created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/service.PaymentLinkResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid billing ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Billing not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -145,7 +195,25 @@
                 }
             }
         },
+        "service.PaymentLinkResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "billing_id": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "payment_url": {
+                    "type": "string"
+                }
+            }
+        },
         "utils.APIResponse": {
+            "description": "Standard API response structure",
             "type": "object",
             "properties": {
                 "data": {},
@@ -153,10 +221,12 @@
                     "type": "string"
                 },
                 "message": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Operation completed successfully"
                 },
                 "success": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
                 }
             }
         }
