@@ -16,16 +16,16 @@ type BaseModel struct {
 
 // MasterMenu represents the master_menus table
 type MasterMenu struct {
-	ID          uint      `json:"id" gorm:"primarykey"`
-	DocumentID  string    `json:"document_id" gorm:"column:document_id"`
-	NamaMenu    string    `json:"nama_menu" gorm:"column:nama_menu"`
-	KodeMenu    string    `json:"kode_menu" gorm:"column:kode_menu"`
-	UrutanMenu  *int      `json:"urutan_menu" gorm:"column:urutan_menu"`
-	IsActive    *bool     `json:"is_active" gorm:"column:is_active"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID          uint       `json:"id" gorm:"primarykey"`
+	DocumentID  string     `json:"document_id" gorm:"column:document_id"`
+	NamaMenu    string     `json:"nama_menu" gorm:"column:nama_menu"`
+	KodeMenu    string     `json:"kode_menu" gorm:"column:kode_menu"`
+	UrutanMenu  *int       `json:"urutan_menu" gorm:"column:urutan_menu"`
+	IsActive    *bool      `json:"is_active" gorm:"column:is_active"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
 	PublishedAt *time.Time `json:"published_at"`
-	Locale      *string   `json:"locale"`
+	Locale      *string    `json:"locale"`
 }
 
 // TableName sets the insert table name for MasterMenu
@@ -51,4 +51,23 @@ type Billing struct {
 // TableName sets the insert table name for Billing
 func (Billing) TableName() string {
 	return "billings"
+}
+
+// UserDetail represents the user detail response
+type UserDetail struct {
+	ID           uint   `json:"id" gorm:"column:id"`
+	NamaPenghuni string `json:"nama_penghuni" gorm:"column:nama_penghuni"`
+	NoHP         string `json:"no_hp" gorm:"column:no_hp"`
+	NoTelp       string `json:"no_telp" gorm:"column:no_telp"`
+	DocumentID   string `json:"document_id" gorm:"column:document_id"`
+	Email        string `json:"email" gorm:"column:email"`
+	UserID       uint   `json:"user_id" gorm:"column:user_id"`
+	RoleName     string `json:"role_name" gorm:"column:name"`
+	RoleID       uint   `json:"role_id" gorm:"column:role_id"`
+	RoleType     string `json:"role_type" gorm:"column:role_type"`
+}
+
+// TableName sets the insert table name for UserDetail
+func (UserDetail) TableName() string {
+	return "profiles"
 }

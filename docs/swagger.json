@@ -18,30 +18,6 @@
     "host": "localhost:8080",
     "basePath": "/api/v1",
     "paths": {
-        "/api/v1/health": {
-            "get": {
-                "description": "Check if the service is running",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "health"
-                ],
-                "summary": "Health check",
-                "responses": {
-                    "200": {
-                        "description": "Service is running",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/menus/user/{user_id}": {
             "get": {
                 "description": "Get list of menus accessible by a specific user ID",
@@ -159,6 +135,68 @@
                     }
                 }
             }
+        },
+        "/api/v1/users/profile/{user_id}": {
+            "get": {
+                "description": "Get detailed user information by profile ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get user detail by profile ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User detail retrieved successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.UserDetailResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid user ID",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -192,6 +230,51 @@
                 "urutan_menu": {
                     "type": "integer",
                     "example": 1
+                }
+            }
+        },
+        "handler.UserDetailResponse": {
+            "type": "object",
+            "properties": {
+                "document_id": {
+                    "type": "string",
+                    "example": "abc123def456"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "john.doe@example.com"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "nama_penghuni": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "no_hp": {
+                    "type": "string",
+                    "example": "+6281234567890"
+                },
+                "no_telp": {
+                    "type": "string",
+                    "example": "021-12345678"
+                },
+                "role_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "role_name": {
+                    "type": "string",
+                    "example": "Administrator"
+                },
+                "role_type": {
+                    "type": "string",
+                    "example": "admin"
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 123
                 }
             }
         },

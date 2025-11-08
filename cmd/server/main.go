@@ -75,11 +75,13 @@ func main() {
 	// Initialize repositories
 	menuRepo := repository.NewMenuRepository(db.DB)
 	billingRepo := repository.NewBillingRepository(db.DB)
+	userRepo := repository.NewUserRepository(db.DB)
 
 	// Initialize services
 	menuService := service.NewMenuService(menuRepo)
 	dokuService := service.NewDokuService(appLogger)
 	paymentService := service.NewPaymentService(billingRepo, dokuService, appLogger)
+	userService := service.NewUserService(userRepo, appLogger)
 
 	// Initialize Gin router
 	router := gin.New()
@@ -92,7 +94,7 @@ func main() {
 	router.NoMethod(middleware.NoMethodHandler())
 
 	// Setup routes
-	handler.SetupRoutes(router, menuService, paymentService, appLogger)
+	handler.SetupRoutes(router, menuService, paymentService, userService, appLogger)
 
 	// Create HTTP server
 	server := &http.Server{

@@ -2,8 +2,8 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"ipl-be-svc/internal/service"
 	"ipl-be-svc/pkg/logger"
@@ -14,11 +14,13 @@ func SetupRoutes(
 	router *gin.Engine,
 	menuService service.MenuService,
 	paymentService service.PaymentService,
+	userService service.UserService,
 	logger *logger.Logger,
 ) {
 	// Initialize handlers
 	menuHandler := NewMenuHandler(menuService)
 	paymentHandler := NewPaymentHandler(paymentService, logger)
+	userHandler := NewUserHandler(userService, logger)
 
 	// Swagger documentation
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -40,17 +42,15 @@ func SetupRoutes(
 		{
 			payments.POST("/billing/:id/link", paymentHandler.CreatePaymentLink)
 		}
+
+		// User routes
+		users := v1.Group("/users")
+		{
+			users.GET("/profile/:user_id", userHandler.GetUserDetailByProfileID)
+		}
 	}
 }
 
-// HealthCheck handles GET /api/v1/health
-// @Summary Health check
-// @Description Check if the service is running
-// @Tags health
-// @Accept json
-// @Produce json
-// @Success 200 {object} map[string]interface{} "Service is running"
-// @Router /api/v1/health [get]
 func HealthCheck(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"status":  "ok",

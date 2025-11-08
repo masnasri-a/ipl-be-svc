@@ -24,6 +24,39 @@ definitions:
         example: 1
         type: integer
     type: object
+  handler.UserDetailResponse:
+    properties:
+      document_id:
+        example: abc123def456
+        type: string
+      email:
+        example: john.doe@example.com
+        type: string
+      id:
+        example: 1
+        type: integer
+      nama_penghuni:
+        example: John Doe
+        type: string
+      no_hp:
+        example: "+6281234567890"
+        type: string
+      no_telp:
+        example: 021-12345678
+        type: string
+      role_id:
+        example: 1
+        type: integer
+      role_name:
+        example: Administrator
+        type: string
+      role_type:
+        example: admin
+        type: string
+      user_id:
+        example: 123
+        type: integer
+    type: object
   service.PaymentLinkResponse:
     properties:
       amount:
@@ -62,22 +95,6 @@ info:
   title: IPL Backend Service API
   version: "1.0"
 paths:
-  /api/v1/health:
-    get:
-      consumes:
-      - application/json
-      description: Check if the service is running
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Service is running
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Health check
-      tags:
-      - health
   /api/v1/menus/user/{user_id}:
     get:
       consumes:
@@ -154,4 +171,42 @@ paths:
       summary: Create payment link
       tags:
       - payments
+  /api/v1/users/profile/{user_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed user information by profile ID
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User detail retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.UserDetailResponse'
+              type: object
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Get user detail by profile ID
+      tags:
+      - users
 swagger: "2.0"
