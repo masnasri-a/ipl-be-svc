@@ -125,11 +125,13 @@ type DokuService interface {
 // PaymentService defines the interface for payment operations
 type PaymentService interface {
 	CreatePaymentLink(billingID uint) (*PaymentLinkResponse, error)
+	CreatePaymentLinkMultiple(billingIDs []uint) (*PaymentLinkResponse, error)
 }
 
 // PaymentLinkResponse represents the response for payment link creation
 type PaymentLinkResponse struct {
-	BillingID   uint   `json:"billing_id"`
+	BillingID   uint   `json:"billing_id,omitempty"`
+	BillingIDs  []uint `json:"billing_ids,omitempty"`
 	Amount      int64  `json:"amount"`
 	PaymentURL  string `json:"payment_url"`
 	Description string `json:"description"`
@@ -183,6 +185,57 @@ func (s *paymentService) CreatePaymentLink(billingID uint) (*PaymentLinkResponse
 	return &PaymentLinkResponse{
 		BillingID:   billingID,
 		Amount:      *billing.Nominal,
+		PaymentURL:  paymentURL,
+		Description: description,
+	}, nil
+}
+
+// CreatePaymentLinkMultiple creates a DOKU payment link for multiple billing records
+func (s *paymentService) CreatePaymentLinkMultiple(billingIDs []uint) (*PaymentLinkResponse, error) {
+	if len(billingIDs) == 0 {
+		return nil, fmt.Errorf("billing IDs cannot be empty")
+	}
+
+	var totalAmount int64 = 0
+	var descriptions []string
+
+	for _, billingID := range billingIDs {
+		// Get billing record
+		billing, err := s.billingRepo.GetBillingByID(billingID)
+		if err != nil {
+			s.logger.WithError(err).WithField("billing_id", billingID).Error("Failed to get billing record")
+			return nil, fmt.Errorf("billing record not found for ID %d: %w", billingID, err)
+		}
+
+		// Validate nominal exists
+		if billing.Nominal == nil || *billing.Nominal <= 0 {
+			s.logger.WithField("billing_id", billingID).Error("Invalid billing nominal")
+			return nil, fmt.Errorf("invalid billing nominal for ID %d", billingID)
+		}
+
+		totalAmount += *billing.Nominal
+
+		// Create description part
+		desc := fmt.Sprintf("Billing ID %d", billingID)
+		if billing.Bulan != nil && billing.Tahun != nil {
+			desc = fmt.Sprintf("%d/%d - Billing ID %d", *billing.Bulan, *billing.Tahun, billingID)
+		}
+		descriptions = append(descriptions, desc)
+	}
+
+	// Create combined description
+	description := fmt.Sprintf("Payment for multiple billings: %v", descriptions)
+
+	// Create DOKU payment link
+	paymentURL, err := s.dokuService.CreatePaymentLink(totalAmount, description)
+	if err != nil {
+		s.logger.WithError(err).WithField("billing_ids", billingIDs).Error("Failed to create DOKU payment link")
+		return nil, fmt.Errorf("failed to create payment link: %w", err)
+	}
+
+	return &PaymentLinkResponse{
+		BillingIDs:  billingIDs,
+		Amount:      totalAmount,
 		PaymentURL:  paymentURL,
 		Description: description,
 	}, nil

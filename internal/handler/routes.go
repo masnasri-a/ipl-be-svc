@@ -15,12 +15,16 @@ func SetupRoutes(
 	menuService service.MenuService,
 	paymentService service.PaymentService,
 	userService service.UserService,
+	masterMenuService service.MasterMenuService,
+	roleMenuService service.RoleMenuService,
 	logger *logger.Logger,
 ) {
 	// Initialize handlers
 	menuHandler := NewMenuHandler(menuService)
 	paymentHandler := NewPaymentHandler(paymentService, logger)
 	userHandler := NewUserHandler(userService, logger)
+	masterMenuHandler := NewMasterMenuHandler(masterMenuService, logger)
+	roleMenuHandler := NewRoleMenuHandler(roleMenuService, logger)
 
 	// Swagger documentation
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -41,12 +45,47 @@ func SetupRoutes(
 		payments := v1.Group("/payments")
 		{
 			payments.POST("/billing/:id/link", paymentHandler.CreatePaymentLink)
+			payments.POST("/billing/link", paymentHandler.CreatePaymentLinkMultiple)
 		}
 
 		// User routes
 		users := v1.Group("/users")
 		{
 			users.GET("/profile/:user_id", userHandler.GetUserDetailByProfileID)
+		}
+
+		// Master Menu routes
+		masterMenus := v1.Group("/master-menus")
+		{
+			masterMenus.POST("", masterMenuHandler.CreateMasterMenu)
+			masterMenus.GET("", masterMenuHandler.GetAllMasterMenus)
+			masterMenus.GET("/:id", masterMenuHandler.GetMasterMenu)
+			masterMenus.PUT("/:id", masterMenuHandler.UpdateMasterMenu)
+			masterMenus.DELETE("/:id", masterMenuHandler.DeleteMasterMenu)
+		}
+
+		// Role Menu routes
+		roleMenus := v1.Group("/role-menus")
+		{
+			roleMenus.POST("", roleMenuHandler.CreateRoleMenu)
+			roleMenus.GET("", roleMenuHandler.GetAllRoleMenus)
+			roleMenus.GET("/:id", roleMenuHandler.GetRoleMenu)
+			roleMenus.PUT("/:id", roleMenuHandler.UpdateRoleMenu)
+			roleMenus.DELETE("/:id", roleMenuHandler.DeleteRoleMenu)
+
+			// Master menu attachments
+			roleMenus.POST("/:id/master-menus", roleMenuHandler.AttachMasterMenu)
+			roleMenus.DELETE("/:id/master-menus/:master_menu_id", roleMenuHandler.DetachMasterMenu)
+
+			// Role attachments
+			roleMenus.POST("/:id/roles", roleMenuHandler.AttachRole)
+			roleMenus.DELETE("/:id/roles/:role_id", roleMenuHandler.DetachRole)
+		}
+
+		// Role-specific role menu routes
+		roles := v1.Group("/roles")
+		{
+			roles.GET("/:role_id/role-menus", roleMenuHandler.GetRoleMenusByRoleID)
 		}
 	}
 }
