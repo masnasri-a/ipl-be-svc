@@ -1,6 +1,6 @@
 basePath: /api/v1
 definitions:
-  internal_handler.BulkBillingRequest:
+  handler.BulkBillingRequest:
     properties:
       month:
         description: Month 1-12
@@ -21,7 +21,9 @@ definitions:
     - month
     - year
     type: object
-  internal_handler.UserDetailResponse:
+  handler.CreatePaymentLinkMultipleRequest:
+    type: object
+  handler.UserDetailResponse:
     properties:
       document_id:
         example: abc123def456
@@ -54,7 +56,144 @@ definitions:
         example: 123
         type: integer
     type: object
-  ipl-be-svc_internal_models_response.MenuResponse:
+  models.BillingPenghuniResponse:
+    properties:
+      bulan:
+        description: Month name
+        example: November
+        type: string
+      document_id:
+        description: User document ID
+        example: abc123def456
+        type: string
+      email:
+        description: User email address
+        example: john.doe@example.com
+        type: string
+      id:
+        description: User ID
+        example: 1
+        type: integer
+      nama_penghuni:
+        description: Resident name
+        example: John Doe
+        type: string
+      no_hp:
+        description: Phone number
+        example: "+6281234567890"
+        type: string
+      no_telp:
+        description: Telephone number
+        example: 021-12345678
+        type: string
+      nominal:
+        description: Total nominal amount (summed per billing period)
+        example: 500000
+        type: integer
+      role_id:
+        description: Role ID
+        example: 5
+        type: integer
+      role_name:
+        description: Role name
+        example: Penghuni
+        type: string
+      role_type:
+        description: Role type
+        example: penghuni
+        type: string
+      status_billing:
+        description: Billing status
+        example: Belum Dibayar
+        type: string
+      tahun:
+        description: Year
+        example: 2025
+        type: integer
+      username:
+        description: Username
+        example: john_doe
+        type: string
+    type: object
+  models.MasterMenu:
+    properties:
+      created_at:
+        type: string
+      document_id:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      kode_menu:
+        type: string
+      locale:
+        type: string
+      nama_menu:
+        type: string
+      published_at:
+        type: string
+      updated_at:
+        type: string
+      urutan_menu:
+        type: integer
+    type: object
+  models.Role:
+    properties:
+      created_at:
+        type: string
+      created_by_id:
+        type: integer
+      description:
+        type: string
+      document_id:
+        type: string
+      id:
+        type: integer
+      locale:
+        type: string
+      name:
+        type: string
+      published_at:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+      updated_by_id:
+        type: integer
+    type: object
+  models.RoleMenu:
+    properties:
+      created_at:
+        type: string
+      created_by_id:
+        type: integer
+      document_id:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      master_menus:
+        description: Relationships
+        items:
+          $ref: '#/definitions/models.MasterMenu'
+        type: array
+      published_at:
+        type: string
+      role_menu_ord:
+        type: number
+      roles:
+        items:
+          $ref: '#/definitions/models.Role'
+        type: array
+      updated_at:
+        type: string
+      updated_by_id:
+        type: integer
+    type: object
+  response.MenuResponse:
     properties:
       document_id:
         example: mo5qqs8ezbruui07t91p6da8
@@ -78,7 +217,7 @@ definitions:
         example: 1
         type: integer
     type: object
-  ipl-be-svc_internal_models_response.PenghuniUserResponse:
+  response.PenghuniUserResponse:
     properties:
       document_id:
         example: abc123def456
@@ -111,7 +250,29 @@ definitions:
         example: john_doe
         type: string
     type: object
-  ipl-be-svc_internal_service.BulkBillingResponse:
+  service.AttachMasterMenuRequest:
+    properties:
+      master_menu_id:
+        example: 1
+        type: integer
+      order:
+        example: 1
+        type: number
+    required:
+    - master_menu_id
+    type: object
+  service.AttachRoleRequest:
+    properties:
+      order:
+        example: 1
+        type: number
+      role_id:
+        example: 1
+        type: integer
+    required:
+    - role_id
+    type: object
+  service.BulkBillingResponse:
     properties:
       errors:
         items:
@@ -126,7 +287,33 @@ definitions:
       total_users:
         type: integer
     type: object
-  ipl-be-svc_internal_service.PaymentLinkResponse:
+  service.CreateMasterMenuRequest:
+    properties:
+      document_id:
+        example: menu001
+        type: string
+      is_active:
+        example: true
+        type: boolean
+      kode_menu:
+        example: DASHBOARD
+        type: string
+      locale:
+        example: id
+        type: string
+      nama_menu:
+        example: Dashboard
+        type: string
+      urutan_menu:
+        example: 1
+        type: integer
+    required:
+    - kode_menu
+    - nama_menu
+    type: object
+  service.CreateRoleMenuRequest:
+    type: object
+  service.PaymentLinkResponse:
     properties:
       amount:
         type: integer
@@ -141,7 +328,40 @@ definitions:
       payment_url:
         type: string
     type: object
-  ipl-be-svc_pkg_utils.APIResponse:
+  service.UpdateMasterMenuRequest:
+    properties:
+      document_id:
+        example: menu001
+        type: string
+      is_active:
+        example: true
+        type: boolean
+      kode_menu:
+        example: DASHBOARD
+        type: string
+      locale:
+        example: id
+        type: string
+      nama_menu:
+        example: Dashboard
+        type: string
+      urutan_menu:
+        example: 1
+        type: integer
+    type: object
+  service.UpdateRoleMenuRequest:
+    properties:
+      document_id:
+        example: role_menu001
+        type: string
+      is_active:
+        example: true
+        type: boolean
+      role_menu_ord:
+        example: 1
+        type: number
+    type: object
+  utils.APIResponse:
     description: Standard API response structure
     properties:
       data: {}
@@ -203,32 +423,246 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_handler.BulkBillingRequest'
+          $ref: '#/definitions/handler.BulkBillingRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Bulk billing creation result
           schema:
-            $ref: '#/definitions/ipl-be-svc_internal_service.BulkBillingResponse'
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.BulkBillingResponse'
+              type: object
         "400":
           description: Invalid request
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/utils.APIResponse'
         "401":
           description: Unauthorized
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/utils.APIResponse'
         "500":
           description: Internal server error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/utils.APIResponse'
       summary: Create bulk monthly billings
       tags:
       - billings
+  /api/v1/billings/penghuni:
+    get:
+      consumes:
+      - application/json
+      description: Get all billing data for penghuni users with complete information
+        including profile, role, and billing status. Nominal amounts are summed per
+        user per billing period (month/year).
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Billing penghuni retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.BillingPenghuniResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Get billing penghuni list with summed nominals
+      tags:
+      - billings
+  /api/v1/master-menus:
+    get:
+      consumes:
+      - application/json
+      description: Get all master menus with pagination
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Master menus retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.PaginatedResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.MasterMenu'
+                  type: array
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Get all master menus
+      tags:
+      - master-menus
+    post:
+      consumes:
+      - application/json
+      description: Create a new master menu with the provided information
+      parameters:
+      - description: Master menu data
+        in: body
+        name: master_menu
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateMasterMenuRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Master menu created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.MasterMenu'
+              type: object
+        "400":
+          description: Invalid request data
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Create a new master menu
+      tags:
+      - master-menus
+  /api/v1/master-menus/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete master menu by ID
+      parameters:
+      - description: Master Menu ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Master menu deleted successfully
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Invalid master menu ID
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Master menu not found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Delete master menu
+      tags:
+      - master-menus
+    get:
+      consumes:
+      - application/json
+      description: Get master menu information by ID
+      parameters:
+      - description: Master Menu ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Master menu retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.MasterMenu'
+              type: object
+        "400":
+          description: Invalid master menu ID
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Master menu not found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Get master menu by ID
+      tags:
+      - master-menus
+    put:
+      consumes:
+      - application/json
+      description: Update master menu information
+      parameters:
+      - description: Master Menu ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Master menu update data
+        in: body
+        name: master_menu
+        required: true
+        schema:
+          $ref: '#/definitions/service.UpdateMasterMenuRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Master menu updated successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.MasterMenu'
+              type: object
+        "400":
+          description: Invalid request data
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Master menu not found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Update master menu
+      tags:
+      - master-menus
   /api/v1/menus/user/{user_id}:
     get:
       consumes:
@@ -247,25 +681,25 @@ paths:
           description: Menus retrieved successfully
           schema:
             allOf:
-            - $ref: '#/definitions/ipl-be-svc_pkg_utils.APIResponse'
+            - $ref: '#/definitions/utils.APIResponse'
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/ipl-be-svc_internal_models_response.MenuResponse'
+                    $ref: '#/definitions/response.MenuResponse'
                   type: array
               type: object
         "400":
           description: Invalid user ID
           schema:
-            $ref: '#/definitions/ipl-be-svc_pkg_utils.APIResponse'
+            $ref: '#/definitions/utils.APIResponse'
         "404":
           description: No menus found
           schema:
-            $ref: '#/definitions/ipl-be-svc_pkg_utils.APIResponse'
+            $ref: '#/definitions/utils.APIResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/ipl-be-svc_pkg_utils.APIResponse'
+            $ref: '#/definitions/utils.APIResponse'
       summary: Get menus by user ID
       tags:
       - menus
@@ -286,7 +720,7 @@ paths:
         "200":
           description: Payment link created successfully
           schema:
-            $ref: '#/definitions/ipl-be-svc_internal_service.PaymentLinkResponse'
+            $ref: '#/definitions/service.PaymentLinkResponse'
         "400":
           description: Invalid billing ID
           schema:
@@ -305,6 +739,409 @@ paths:
       summary: Create payment link
       tags:
       - payments
+  /api/v1/payments/billing/link:
+    post:
+      consumes:
+      - application/json
+      description: Create a DOKU payment link for multiple billing records by IDs
+      parameters:
+      - description: Billing IDs
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreatePaymentLinkMultipleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payment link created successfully
+          schema:
+            $ref: '#/definitions/service.PaymentLinkResponse'
+        "400":
+          description: Invalid billing IDs
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Billing not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create payment link for multiple billings
+      tags:
+      - payments
+  /api/v1/role-menus:
+    get:
+      consumes:
+      - application/json
+      description: Get all role menus with pagination and relations
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role menus retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.PaginatedResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.RoleMenu'
+                  type: array
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Get all role menus
+      tags:
+      - role-menus
+    post:
+      consumes:
+      - application/json
+      description: Create a new role menu with the provided information
+      parameters:
+      - description: Role menu data
+        in: body
+        name: role_menu
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateRoleMenuRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Role menu created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.RoleMenu'
+              type: object
+        "400":
+          description: Invalid request data
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Create a new role menu
+      tags:
+      - role-menus
+  /api/v1/role-menus/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete role menu by ID and its associations
+      parameters:
+      - description: Role Menu ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role menu deleted successfully
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Invalid role menu ID
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Role menu not found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Delete role menu
+      tags:
+      - role-menus
+    get:
+      consumes:
+      - application/json
+      description: Get role menu information by ID with master menus and roles
+      parameters:
+      - description: Role Menu ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role menu retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.RoleMenu'
+              type: object
+        "400":
+          description: Invalid role menu ID
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Role menu not found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Get role menu by ID
+      tags:
+      - role-menus
+    put:
+      consumes:
+      - application/json
+      description: Update role menu information
+      parameters:
+      - description: Role Menu ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Role menu update data
+        in: body
+        name: role_menu
+        required: true
+        schema:
+          $ref: '#/definitions/service.UpdateRoleMenuRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role menu updated successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.RoleMenu'
+              type: object
+        "400":
+          description: Invalid request data
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Role menu not found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Update role menu
+      tags:
+      - role-menus
+  /api/v1/role-menus/{id}/master-menus:
+    post:
+      consumes:
+      - application/json
+      description: Attach a master menu to a role menu with optional ordering
+      parameters:
+      - description: Role Menu ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Attach master menu data
+        in: body
+        name: attach_request
+        required: true
+        schema:
+          $ref: '#/definitions/service.AttachMasterMenuRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Master menu attached successfully
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Invalid request data
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Role menu or master menu not found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Attach master menu to role menu
+      tags:
+      - role-menus
+  /api/v1/role-menus/{id}/master-menus/{master_menu_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Detach a master menu from a role menu
+      parameters:
+      - description: Role Menu ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Master Menu ID
+        in: path
+        name: master_menu_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Master menu detached successfully
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Detach master menu from role menu
+      tags:
+      - role-menus
+  /api/v1/role-menus/{id}/roles:
+    post:
+      consumes:
+      - application/json
+      description: Attach a role to a role menu with optional ordering
+      parameters:
+      - description: Role Menu ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Attach role data
+        in: body
+        name: attach_request
+        required: true
+        schema:
+          $ref: '#/definitions/service.AttachRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role attached successfully
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Invalid request data
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "404":
+          description: Role menu not found
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Attach role to role menu
+      tags:
+      - role-menus
+  /api/v1/role-menus/{id}/roles/{role_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Detach a role from a role menu
+      parameters:
+      - description: Role Menu ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Role ID
+        in: path
+        name: role_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role detached successfully
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Detach role from role menu
+      tags:
+      - role-menus
+  /api/v1/roles/{role_id}/role-menus:
+    get:
+      consumes:
+      - application/json
+      description: Get all role menus associated with a specific role
+      parameters:
+      - description: Role ID
+        in: path
+        name: role_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Role menus retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.RoleMenu'
+                  type: array
+              type: object
+        "400":
+          description: Invalid role ID
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/utils.APIResponse'
+      summary: Get role menus by role ID
+      tags:
+      - role-menus
   /api/v1/users/penghuni:
     get:
       consumes:
@@ -317,17 +1154,17 @@ paths:
           description: Penghuni users retrieved successfully
           schema:
             allOf:
-            - $ref: '#/definitions/ipl-be-svc_pkg_utils.APIResponse'
+            - $ref: '#/definitions/utils.APIResponse'
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/ipl-be-svc_internal_models_response.PenghuniUserResponse'
+                    $ref: '#/definitions/response.PenghuniUserResponse'
                   type: array
               type: object
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/ipl-be-svc_pkg_utils.APIResponse'
+            $ref: '#/definitions/utils.APIResponse'
       summary: Get all penghuni users
       tags:
       - users
@@ -349,23 +1186,23 @@ paths:
           description: User detail retrieved successfully
           schema:
             allOf:
-            - $ref: '#/definitions/ipl-be-svc_pkg_utils.APIResponse'
+            - $ref: '#/definitions/utils.APIResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/internal_handler.UserDetailResponse'
+                  $ref: '#/definitions/handler.UserDetailResponse'
               type: object
         "400":
           description: Invalid user ID
           schema:
-            $ref: '#/definitions/ipl-be-svc_pkg_utils.APIResponse'
+            $ref: '#/definitions/utils.APIResponse'
         "404":
           description: User not found
           schema:
-            $ref: '#/definitions/ipl-be-svc_pkg_utils.APIResponse'
+            $ref: '#/definitions/utils.APIResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/ipl-be-svc_pkg_utils.APIResponse'
+            $ref: '#/definitions/utils.APIResponse'
       summary: Get user detail by profile ID
       tags:
       - users

@@ -7,18 +7,21 @@ import (
 
 	"ipl-be-svc/internal/models/response"
 	"ipl-be-svc/internal/service"
+	"ipl-be-svc/pkg/logger"
 	"ipl-be-svc/pkg/utils"
 )
 
 // MenuHandler handles menu-related HTTP requests
 type MenuHandler struct {
 	menuService service.MenuService
+	logger      *logger.Logger
 }
 
 // NewMenuHandler creates a new menu handler
-func NewMenuHandler(menuService service.MenuService) *MenuHandler {
+func NewMenuHandler(menuService service.MenuService, logger *logger.Logger) *MenuHandler {
 	return &MenuHandler{
 		menuService: menuService,
+		logger:      logger,
 	}
 }
 
@@ -37,12 +40,14 @@ func NewMenuHandler(menuService service.MenuService) *MenuHandler {
 func (h *MenuHandler) GetMenusByUserID(c *gin.Context) {
 	userID, err := utils.GetIDParam(c)
 	if err != nil {
+		h.logger.WithError(err).Error("Invalid user ID parameter")
 		utils.BadRequestResponse(c, "Invalid user ID", err)
 		return
 	}
 
 	menus, err := h.menuService.GetMenusByUserID(userID)
 	if err != nil {
+		h.logger.WithError(err).WithField("user_id", userID).Error("Failed to get menus")
 		if strings.Contains(err.Error(), "invalid user ID") {
 			utils.BadRequestResponse(c, "Invalid user ID", err)
 			return
@@ -52,6 +57,7 @@ func (h *MenuHandler) GetMenusByUserID(c *gin.Context) {
 	}
 
 	if len(menus) == 0 {
+		h.logger.WithField("user_id", userID).Info("No menus found for user")
 		utils.SuccessResponse(c, "No menus found for this user", []interface{}{})
 		return
 	}
@@ -75,6 +81,11 @@ func (h *MenuHandler) GetMenusByUserID(c *gin.Context) {
 			PublishedAt: publishedAt,
 		})
 	}
+
+	h.logger.WithFields(map[string]interface{}{
+		"user_id":     userID,
+		"menu_count": len(menuResponses),
+	}).Info("Menus retrieved successfully")
 
 	utils.SuccessResponse(c, "Menus retrieved successfully", menuResponses)
 }

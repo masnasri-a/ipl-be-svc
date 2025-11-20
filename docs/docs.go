@@ -44,7 +44,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler.BulkBillingRequest"
+                            "$ref": "#/definitions/handler.BulkBillingRequest"
                         }
                     }
                 ],
@@ -52,28 +52,376 @@ const docTemplate = `{
                     "200": {
                         "description": "Bulk billing creation result",
                         "schema": {
-                            "$ref": "#/definitions/ipl-be-svc_internal_service.BulkBillingResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/service.BulkBillingResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
                         "description": "Invalid request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/utils.APIResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/utils.APIResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/billings/penghuni": {
+            "get": {
+                "description": "Get all billing data for penghuni users with complete information including profile, role, and billing status. Nominal amounts are summed per user per billing period (month/year).",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "billings"
+                ],
+                "summary": "Get billing penghuni list with summed nominals",
+                "responses": {
+                    "200": {
+                        "description": "Billing penghuni retrieved successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.BillingPenghuniResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/master-menus": {
+            "get": {
+                "description": "Get all master menus with pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "master-menus"
+                ],
+                "summary": "Get all master menus",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Number of items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Master menus retrieved successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.PaginatedResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.MasterMenu"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new master menu with the provided information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "master-menus"
+                ],
+                "summary": "Create a new master menu",
+                "parameters": [
+                    {
+                        "description": "Master menu data",
+                        "name": "master_menu",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.CreateMasterMenuRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Master menu created successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.MasterMenu"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/master-menus/{id}": {
+            "get": {
+                "description": "Get master menu information by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "master-menus"
+                ],
+                "summary": "Get master menu by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Master Menu ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Master menu retrieved successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.MasterMenu"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid master menu ID",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Master menu not found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update master menu information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "master-menus"
+                ],
+                "summary": "Update master menu",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Master Menu ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Master menu update data",
+                        "name": "master_menu",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.UpdateMasterMenuRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Master menu updated successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.MasterMenu"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Master menu not found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete master menu by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "master-menus"
+                ],
+                "summary": "Delete master menu",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Master Menu ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Master menu deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid master menu ID",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Master menu not found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
                         }
                     }
                 }
@@ -107,7 +455,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/ipl-be-svc_pkg_utils.APIResponse"
+                                    "$ref": "#/definitions/utils.APIResponse"
                                 },
                                 {
                                     "type": "object",
@@ -115,7 +463,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/ipl-be-svc_internal_models_response.MenuResponse"
+                                                "$ref": "#/definitions/response.MenuResponse"
                                             }
                                         }
                                     }
@@ -126,19 +474,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid user ID",
                         "schema": {
-                            "$ref": "#/definitions/ipl-be-svc_pkg_utils.APIResponse"
+                            "$ref": "#/definitions/utils.APIResponse"
                         }
                     },
                     "404": {
                         "description": "No menus found",
                         "schema": {
-                            "$ref": "#/definitions/ipl-be-svc_pkg_utils.APIResponse"
+                            "$ref": "#/definitions/utils.APIResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/ipl-be-svc_pkg_utils.APIResponse"
+                            "$ref": "#/definitions/utils.APIResponse"
                         }
                     }
                 }
@@ -225,7 +573,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Payment link created successfully",
                         "schema": {
-                            "$ref": "#/definitions/ipl-be-svc_internal_service.PaymentLinkResponse"
+                            "$ref": "#/definitions/service.PaymentLinkResponse"
                         }
                     },
                     "400": {
@@ -252,6 +600,580 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/role-menus": {
+            "get": {
+                "description": "Get all role menus with pagination and relations",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "role-menus"
+                ],
+                "summary": "Get all role menus",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Number of items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Role menus retrieved successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.PaginatedResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.RoleMenu"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new role menu with the provided information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "role-menus"
+                ],
+                "summary": "Create a new role menu",
+                "parameters": [
+                    {
+                        "description": "Role menu data",
+                        "name": "role_menu",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.CreateRoleMenuRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Role menu created successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.RoleMenu"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/role-menus/{id}": {
+            "get": {
+                "description": "Get role menu information by ID with master menus and roles",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "role-menus"
+                ],
+                "summary": "Get role menu by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Role Menu ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Role menu retrieved successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.RoleMenu"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid role menu ID",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Role menu not found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update role menu information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "role-menus"
+                ],
+                "summary": "Update role menu",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Role Menu ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Role menu update data",
+                        "name": "role_menu",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.UpdateRoleMenuRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Role menu updated successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.RoleMenu"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Role menu not found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete role menu by ID and its associations",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "role-menus"
+                ],
+                "summary": "Delete role menu",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Role Menu ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Role menu deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid role menu ID",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Role menu not found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/role-menus/{id}/master-menus": {
+            "post": {
+                "description": "Attach a master menu to a role menu with optional ordering",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "role-menus"
+                ],
+                "summary": "Attach master menu to role menu",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Role Menu ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Attach master menu data",
+                        "name": "attach_request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.AttachMasterMenuRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Master menu attached successfully",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Role menu or master menu not found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/role-menus/{id}/master-menus/{master_menu_id}": {
+            "delete": {
+                "description": "Detach a master menu from a role menu",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "role-menus"
+                ],
+                "summary": "Detach master menu from role menu",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Role Menu ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Master Menu ID",
+                        "name": "master_menu_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Master menu detached successfully",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/role-menus/{id}/roles": {
+            "post": {
+                "description": "Attach a role to a role menu with optional ordering",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "role-menus"
+                ],
+                "summary": "Attach role to role menu",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Role Menu ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Attach role data",
+                        "name": "attach_request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.AttachRoleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Role attached successfully",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Role menu not found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/role-menus/{id}/roles/{role_id}": {
+            "delete": {
+                "description": "Detach a role from a role menu",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "role-menus"
+                ],
+                "summary": "Detach role from role menu",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Role Menu ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Role ID",
+                        "name": "role_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Role detached successfully",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/roles/{role_id}/role-menus": {
+            "get": {
+                "description": "Get all role menus associated with a specific role",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "role-menus"
+                ],
+                "summary": "Get role menus by role ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Role ID",
+                        "name": "role_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Role menus retrieved successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/models.RoleMenu"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid role ID",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.APIResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/users/penghuni": {
             "get": {
                 "description": "Get list of all users with role type \"penghuni\"",
@@ -271,7 +1193,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/ipl-be-svc_pkg_utils.APIResponse"
+                                    "$ref": "#/definitions/utils.APIResponse"
                                 },
                                 {
                                     "type": "object",
@@ -279,7 +1201,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/ipl-be-svc_internal_models_response.PenghuniUserResponse"
+                                                "$ref": "#/definitions/response.PenghuniUserResponse"
                                             }
                                         }
                                     }
@@ -290,7 +1212,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/ipl-be-svc_pkg_utils.APIResponse"
+                            "$ref": "#/definitions/utils.APIResponse"
                         }
                     }
                 }
@@ -324,13 +1246,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/ipl-be-svc_pkg_utils.APIResponse"
+                                    "$ref": "#/definitions/utils.APIResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler.UserDetailResponse"
+                                            "$ref": "#/definitions/handler.UserDetailResponse"
                                         }
                                     }
                                 }
@@ -340,19 +1262,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid user ID",
                         "schema": {
-                            "$ref": "#/definitions/ipl-be-svc_pkg_utils.APIResponse"
+                            "$ref": "#/definitions/utils.APIResponse"
                         }
                     },
                     "404": {
                         "description": "User not found",
                         "schema": {
-                            "$ref": "#/definitions/ipl-be-svc_pkg_utils.APIResponse"
+                            "$ref": "#/definitions/utils.APIResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/ipl-be-svc_pkg_utils.APIResponse"
+                            "$ref": "#/definitions/utils.APIResponse"
                         }
                     }
                 }
@@ -360,7 +1282,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "internal_handler.BulkBillingRequest": {
+        "handler.BulkBillingRequest": {
             "type": "object",
             "required": [
                 "month",
@@ -388,7 +1310,10 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler.UserDetailResponse": {
+        "handler.CreatePaymentLinkMultipleRequest": {
+            "type": "object"
+        },
+        "handler.UserDetailResponse": {
             "type": "object",
             "properties": {
                 "document_id": {
@@ -433,7 +1358,200 @@ const docTemplate = `{
                 }
             }
         },
-        "ipl-be-svc_internal_models_response.MenuResponse": {
+        "models.BillingPenghuniResponse": {
+            "type": "object",
+            "properties": {
+                "bulan": {
+                    "description": "Month name",
+                    "type": "string",
+                    "example": "November"
+                },
+                "document_id": {
+                    "description": "User document ID",
+                    "type": "string",
+                    "example": "abc123def456"
+                },
+                "email": {
+                    "description": "User email address",
+                    "type": "string",
+                    "example": "john.doe@example.com"
+                },
+                "id": {
+                    "description": "User ID",
+                    "type": "integer",
+                    "example": 1
+                },
+                "nama_penghuni": {
+                    "description": "Resident name",
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "no_hp": {
+                    "description": "Phone number",
+                    "type": "string",
+                    "example": "+6281234567890"
+                },
+                "no_telp": {
+                    "description": "Telephone number",
+                    "type": "string",
+                    "example": "021-12345678"
+                },
+                "nominal": {
+                    "description": "Total nominal amount (summed per billing period)",
+                    "type": "integer",
+                    "example": 500000
+                },
+                "role_id": {
+                    "description": "Role ID",
+                    "type": "integer",
+                    "example": 5
+                },
+                "role_name": {
+                    "description": "Role name",
+                    "type": "string",
+                    "example": "Penghuni"
+                },
+                "role_type": {
+                    "description": "Role type",
+                    "type": "string",
+                    "example": "penghuni"
+                },
+                "status_billing": {
+                    "description": "Billing status",
+                    "type": "string",
+                    "example": "Belum Dibayar"
+                },
+                "tahun": {
+                    "description": "Year",
+                    "type": "integer",
+                    "example": 2025
+                },
+                "username": {
+                    "description": "Username",
+                    "type": "string",
+                    "example": "john_doe"
+                }
+            }
+        },
+        "models.MasterMenu": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "document_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "kode_menu": {
+                    "type": "string"
+                },
+                "locale": {
+                    "type": "string"
+                },
+                "nama_menu": {
+                    "type": "string"
+                },
+                "published_at": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "urutan_menu": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Role": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by_id": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "document_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "locale": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "published_at": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.RoleMenu": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by_id": {
+                    "type": "integer"
+                },
+                "document_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "master_menus": {
+                    "description": "Relationships",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.MasterMenu"
+                    }
+                },
+                "published_at": {
+                    "type": "string"
+                },
+                "role_menu_ord": {
+                    "type": "number"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Role"
+                    }
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.MenuResponse": {
             "type": "object",
             "properties": {
                 "document_id": {
@@ -466,7 +1584,7 @@ const docTemplate = `{
                 }
             }
         },
-        "ipl-be-svc_internal_models_response.PenghuniUserResponse": {
+        "response.PenghuniUserResponse": {
             "type": "object",
             "properties": {
                 "document_id": {
@@ -511,7 +1629,39 @@ const docTemplate = `{
                 }
             }
         },
-        "ipl-be-svc_internal_service.BulkBillingResponse": {
+        "service.AttachMasterMenuRequest": {
+            "type": "object",
+            "required": [
+                "master_menu_id"
+            ],
+            "properties": {
+                "master_menu_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "order": {
+                    "type": "number",
+                    "example": 1
+                }
+            }
+        },
+        "service.AttachRoleRequest": {
+            "type": "object",
+            "required": [
+                "role_id"
+            ],
+            "properties": {
+                "order": {
+                    "type": "number",
+                    "example": 1
+                },
+                "role_id": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "service.BulkBillingResponse": {
             "type": "object",
             "properties": {
                 "errors": {
@@ -534,7 +1684,43 @@ const docTemplate = `{
                 }
             }
         },
-        "ipl-be-svc_internal_service.PaymentLinkResponse": {
+        "service.CreateMasterMenuRequest": {
+            "type": "object",
+            "required": [
+                "kode_menu",
+                "nama_menu"
+            ],
+            "properties": {
+                "document_id": {
+                    "type": "string",
+                    "example": "menu001"
+                },
+                "is_active": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "kode_menu": {
+                    "type": "string",
+                    "example": "DASHBOARD"
+                },
+                "locale": {
+                    "type": "string",
+                    "example": "id"
+                },
+                "nama_menu": {
+                    "type": "string",
+                    "example": "Dashboard"
+                },
+                "urutan_menu": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "service.CreateRoleMenuRequest": {
+            "type": "object"
+        },
+        "service.PaymentLinkResponse": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -557,7 +1743,53 @@ const docTemplate = `{
                 }
             }
         },
-        "ipl-be-svc_pkg_utils.APIResponse": {
+        "service.UpdateMasterMenuRequest": {
+            "type": "object",
+            "properties": {
+                "document_id": {
+                    "type": "string",
+                    "example": "menu001"
+                },
+                "is_active": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "kode_menu": {
+                    "type": "string",
+                    "example": "DASHBOARD"
+                },
+                "locale": {
+                    "type": "string",
+                    "example": "id"
+                },
+                "nama_menu": {
+                    "type": "string",
+                    "example": "Dashboard"
+                },
+                "urutan_menu": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "service.UpdateRoleMenuRequest": {
+            "type": "object",
+            "properties": {
+                "document_id": {
+                    "type": "string",
+                    "example": "role_menu001"
+                },
+                "is_active": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "role_menu_ord": {
+                    "type": "number",
+                    "example": 1
+                }
+            }
+        },
+        "utils.APIResponse": {
             "description": "Standard API response structure",
             "type": "object",
             "properties": {

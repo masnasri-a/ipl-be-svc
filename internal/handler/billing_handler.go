@@ -1,10 +1,9 @@
 package handler
 
 import (
-	"net/http"
-
 	"ipl-be-svc/internal/service"
 	"ipl-be-svc/pkg/logger"
+	"ipl-be-svc/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -37,19 +36,16 @@ func NewBulkBillingHandler(billingService service.BillingService, logger *logger
 // @Accept json
 // @Produce json
 // @Param request body BulkBillingRequest true "Bulk billing request with month and year"
-// @Success 200 {object} service.BulkBillingResponse "Bulk billing creation result"
-// @Failure 400 {object} map[string]interface{} "Invalid request"
-// @Failure 401 {object} map[string]interface{} "Unauthorized"
-// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Success 200 {object} utils.APIResponse{data=service.BulkBillingResponse} "Bulk billing creation result"
+// @Failure 400 {object} utils.APIResponse "Invalid request"
+// @Failure 401 {object} utils.APIResponse "Unauthorized"
+// @Failure 500 {object} utils.APIResponse "Internal server error"
 // @Router /api/v1/billings/bulk-monthly [post]
 func (h *BulkBillingHandler) CreateBulkMonthlyBillings(c *gin.Context) {
 	var req BulkBillingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		h.logger.WithError(err).Error("Invalid request body")
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "Invalid request",
-			"message": "Request body must be valid JSON",
-		})
+		utils.BadRequestResponse(c, "Request body must be valid JSON", err)
 		return
 	}
 
@@ -66,10 +62,7 @@ func (h *BulkBillingHandler) CreateBulkMonthlyBillings(c *gin.Context) {
 
 	if serviceErr != nil {
 		h.logger.WithError(serviceErr).Error("Failed to create bulk billings")
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "Failed to create billings",
-			"message": serviceErr.Error(),
-		})
+		utils.InternalServerErrorResponse(c, "Failed to create billings", serviceErr)
 		return
 	}
 
@@ -80,5 +73,27 @@ func (h *BulkBillingHandler) CreateBulkMonthlyBillings(c *gin.Context) {
 		"failed_count":   response.FailedCount,
 	}).Info("Bulk billings created successfully")
 
-	c.JSON(http.StatusOK, response)
+	utils.SuccessResponse(c, "Bulk billings created successfully", response)
+}
+
+// GetBillingPenghuni retrieves all billing data for penghuni users
+// @Summary Get billing penghuni list with summed nominals
+// @Description Get all billing data for penghuni users with complete information including profile, role, and billing status. Nominal amounts are summed per user per billing period (month/year).
+// @Tags billings
+// @Accept json
+// @Produce json
+// @Success 200 {object} utils.APIResponse{data=[]models.BillingPenghuniResponse} "Billing penghuni retrieved successfully"
+// @Failure 500 {object} utils.APIResponse "Internal server error"
+// @Router /api/v1/billings/penghuni [get]
+func (h *BulkBillingHandler) GetBillingPenghuni(c *gin.Context) {
+	results, err := h.billingService.GetBillingPenghuni()
+	if err != nil {
+		h.logger.WithError(err).Error("Failed to get billing penghuni")
+		utils.InternalServerErrorResponse(c, "Failed to get billing penghuni", err)
+		return
+	}
+
+	h.logger.WithField("count", len(results)).Info("Billing penghuni retrieved successfully")
+
+	utils.SuccessResponse(c, "Billing penghuni retrieved successfully", results)
 }

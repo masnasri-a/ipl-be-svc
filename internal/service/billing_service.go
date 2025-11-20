@@ -15,6 +15,7 @@ import (
 type BillingService interface {
 	CreateBulkMonthlyBillings(userIDs []uint, month int, year int) (*BulkBillingResponse, error)
 	CreateBulkMonthlyBillingsForAllUsers(month int, year int) (*BulkBillingResponse, error)
+	GetBillingPenghuni() ([]*models.BillingPenghuniResponse, error)
 }
 
 // BulkBillingResponse represents the response for bulk billing creation
@@ -242,4 +243,9 @@ func (s *billingService) getUserWithProfile(userID uint) (*models.User, error) {
 	}
 
 	return &user, nil
+}
+
+// GetBillingPenghuni retrieves all billing data for penghuni users
+func (s *billingService) GetBillingPenghuni() ([]*models.BillingPenghuniResponse, error) {
+	return s.billingRepo.GetBillingPenghuni()
 }

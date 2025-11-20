@@ -21,7 +21,7 @@ func SetupRoutes(
 	logger *logger.Logger,
 ) {
 	// Initialize handlers
-	menuHandler := NewMenuHandler(menuService)
+	menuHandler := NewMenuHandler(menuService, logger)
 	paymentHandler := NewPaymentHandler(paymentService, logger)
 	userHandler := NewUserHandler(userService, logger)
 	bulkBillingHandler := NewBulkBillingHandler(billingService, logger)
@@ -61,6 +61,7 @@ func SetupRoutes(
 		billings := v1.Group("/billings")
 		{
 			billings.POST("/bulk-monthly", bulkBillingHandler.CreateBulkMonthlyBillings)
+			billings.GET("/penghuni", bulkBillingHandler.GetBillingPenghuni)
 		}
 
 		// Master Menu routes
