@@ -14,6 +14,8 @@ type Config struct {
 	Database DatabaseConfig
 	Logger   LoggerConfig
 	Doku     DokuConfig
+	JWT      JWTConfig
+	CORS     CORSConfig
 }
 
 // ServerConfig holds server configuration
@@ -45,6 +47,16 @@ type DokuConfig struct {
 	BaseURL   string
 }
 
+// JWTConfig holds JWT configuration
+type JWTConfig struct {
+	Secret string
+}
+
+// CORSConfig holds CORS configuration
+type CORSConfig struct {
+	AllowedOrigins string
+}
+
 // Load loads configuration from environment variables
 func Load() (*Config, error) {
 	// Load .env file if it exists
@@ -74,6 +86,12 @@ func Load() (*Config, error) {
 			ClientID:  getEnv("DOKU_CLIENT_ID", "BRN-0241-1762176502792"),
 			SecretKey: getEnv("DOKU_SECRET_KEY", "SK-PaILsZudZTytTSTNCmUV"),
 			BaseURL:   getEnv("DOKU_BASE_URL", "https://api-sandbox.doku.com"),
+		},
+		JWT: JWTConfig{
+			Secret: getEnv("JWT_SECRET", "your-secret-key"),
+		},
+		CORS: CORSConfig{
+			AllowedOrigins: getEnv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001"),
 		},
 	}
 

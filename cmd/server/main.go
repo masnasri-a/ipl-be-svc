@@ -84,6 +84,7 @@ func main() {
 	dokuService := service.NewDokuService(appLogger)
 	paymentService := service.NewPaymentService(billingRepo, dokuService, appLogger)
 	userService := service.NewUserService(userRepo, appLogger)
+	billingService := service.NewBillingService(billingRepo, db.DB)
 	masterMenuService := service.NewMasterMenuService(masterMenuRepo, appLogger)
 	roleMenuService := service.NewRoleMenuService(roleMenuRepo, masterMenuRepo, appLogger)
 
@@ -98,7 +99,7 @@ func main() {
 	router.NoMethod(middleware.NoMethodHandler())
 
 	// Setup routes
-	handler.SetupRoutes(router, menuService, paymentService, userService, masterMenuService, roleMenuService, appLogger)
+	handler.SetupRoutes(router, menuService, paymentService, userService, billingService, masterMenuService, roleMenuService, appLogger)
 
 	// Create HTTP server
 	server := &http.Server{

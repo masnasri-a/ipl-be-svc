@@ -15,6 +15,7 @@ func SetupRoutes(
 	menuService service.MenuService,
 	paymentService service.PaymentService,
 	userService service.UserService,
+	billingService service.BillingService,
 	masterMenuService service.MasterMenuService,
 	roleMenuService service.RoleMenuService,
 	logger *logger.Logger,
@@ -23,6 +24,7 @@ func SetupRoutes(
 	menuHandler := NewMenuHandler(menuService)
 	paymentHandler := NewPaymentHandler(paymentService, logger)
 	userHandler := NewUserHandler(userService, logger)
+	bulkBillingHandler := NewBulkBillingHandler(billingService, logger)
 	masterMenuHandler := NewMasterMenuHandler(masterMenuService, logger)
 	roleMenuHandler := NewRoleMenuHandler(roleMenuService, logger)
 
@@ -52,6 +54,13 @@ func SetupRoutes(
 		users := v1.Group("/users")
 		{
 			users.GET("/profile/:user_id", userHandler.GetUserDetailByProfileID)
+			users.GET("/penghuni", userHandler.GetPenghuniUsers)
+		}
+
+		// Billing routes
+		billings := v1.Group("/billings")
+		{
+			billings.POST("/bulk-monthly", bulkBillingHandler.CreateBulkMonthlyBillings)
 		}
 
 		// Master Menu routes

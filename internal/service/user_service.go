@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"ipl-be-svc/internal/models"
+	"ipl-be-svc/internal/models/response"
 	"ipl-be-svc/internal/repository"
 	"ipl-be-svc/pkg/logger"
 )
@@ -10,6 +11,7 @@ import (
 // UserService interface defines user service methods
 type UserService interface {
 	GetUserDetailByProfileID(profileID uint) (*models.UserDetail, error)
+	GetPenghuniUsers() ([]*response.PenghuniUserResponse, error)
 }
 
 // userService implements UserService interface
@@ -46,4 +48,41 @@ func (s *userService) GetUserDetailByProfileID(profileID uint) (*models.UserDeta
 	}).Info("User detail retrieved successfully")
 
 	return userDetail, nil
+}
+
+// GetPenghuniUsers gets all users with role type "penghuni"
+func (s *userService) GetPenghuniUsers() ([]*response.PenghuniUserResponse, error) {
+	// Get users with penghuni role from repository
+	users, err := s.userRepo.GetUsersWithPenghuniRole()
+	if err != nil {
+		s.logger.WithError(err).Error("Failed to get penghuni users from repository")
+		return nil, err
+	}
+
+	// Convert to service response format
+	var penghuniUsers []*response.PenghuniUserResponse
+	for _, user := range users {
+		penghuniUser := &response.PenghuniUserResponse{
+			ID:       user.ID,
+			Username: user.Username,
+			Email:    user.Email,
+			RoleName: user.RoleName,
+			RoleID:   user.RoleID,
+			RoleType: user.RoleType,
+		}
+
+		// Get profile information if available
+		if user.UserID > 0 {
+			penghuniUser.NamaPenghuni = user.NamaPenghuni
+			penghuniUser.NoHP = user.NoHP
+			penghuniUser.NoTelp = user.NoTelp
+			penghuniUser.DocumentID = user.DocumentID
+		}
+
+		penghuniUsers = append(penghuniUsers, penghuniUser)
+	}
+
+	s.logger.WithField("count", len(penghuniUsers)).Info("Penghuni users retrieved successfully")
+
+	return penghuniUsers, nil
 }
