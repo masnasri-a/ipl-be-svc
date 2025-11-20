@@ -82,6 +82,7 @@ func main() {
 	dokuService := service.NewDokuService(appLogger)
 	paymentService := service.NewPaymentService(billingRepo, dokuService, appLogger)
 	userService := service.NewUserService(userRepo, appLogger)
+	billingService := service.NewBillingService(billingRepo, db.DB)
 
 	// Initialize Gin router
 	router := gin.New()
@@ -94,7 +95,7 @@ func main() {
 	router.NoMethod(middleware.NoMethodHandler())
 
 	// Setup routes
-	handler.SetupRoutes(router, menuService, paymentService, userService, appLogger)
+	handler.SetupRoutes(router, menuService, paymentService, userService, billingService, appLogger)
 
 	// Create HTTP server
 	server := &http.Server{

@@ -24,6 +24,61 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/billings/bulk-monthly": {
+            "post": {
+                "description": "Create monthly billings for specified user IDs or all penghuni users if user_ids is empty. Requires auth-token cookie.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "billings"
+                ],
+                "summary": "Create bulk monthly billings",
+                "parameters": [
+                    {
+                        "description": "Bulk billing request with month and year",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler.BulkBillingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Bulk billing creation result",
+                        "schema": {
+                            "$ref": "#/definitions/ipl-be-svc_internal_service.BulkBillingResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/menus/user/{user_id}": {
             "get": {
                 "description": "Get list of menus accessible by a specific user ID",
@@ -52,7 +107,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.APIResponse"
+                                    "$ref": "#/definitions/ipl-be-svc_pkg_utils.APIResponse"
                                 },
                                 {
                                     "type": "object",
@@ -60,7 +115,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/handler.MenuResponse"
+                                                "$ref": "#/definitions/ipl-be-svc_internal_models_response.MenuResponse"
                                             }
                                         }
                                     }
@@ -71,19 +126,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid user ID",
                         "schema": {
-                            "$ref": "#/definitions/utils.APIResponse"
+                            "$ref": "#/definitions/ipl-be-svc_pkg_utils.APIResponse"
                         }
                     },
                     "404": {
                         "description": "No menus found",
                         "schema": {
-                            "$ref": "#/definitions/utils.APIResponse"
+                            "$ref": "#/definitions/ipl-be-svc_pkg_utils.APIResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/utils.APIResponse"
+                            "$ref": "#/definitions/ipl-be-svc_pkg_utils.APIResponse"
                         }
                     }
                 }
@@ -115,7 +170,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Payment link created successfully",
                         "schema": {
-                            "$ref": "#/definitions/service.PaymentLinkResponse"
+                            "$ref": "#/definitions/ipl-be-svc_internal_service.PaymentLinkResponse"
                         }
                     },
                     "400": {
@@ -137,6 +192,50 @@ const docTemplate = `{
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/penghuni": {
+            "get": {
+                "description": "Get list of all users with role type \"penghuni\"",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get all penghuni users",
+                "responses": {
+                    "200": {
+                        "description": "Penghuni users retrieved successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/ipl-be-svc_pkg_utils.APIResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/ipl-be-svc_internal_models_response.PenghuniUserResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/ipl-be-svc_pkg_utils.APIResponse"
                         }
                     }
                 }
@@ -170,13 +269,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.APIResponse"
+                                    "$ref": "#/definitions/ipl-be-svc_pkg_utils.APIResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handler.UserDetailResponse"
+                                            "$ref": "#/definitions/internal_handler.UserDetailResponse"
                                         }
                                     }
                                 }
@@ -186,19 +285,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid user ID",
                         "schema": {
-                            "$ref": "#/definitions/utils.APIResponse"
+                            "$ref": "#/definitions/ipl-be-svc_pkg_utils.APIResponse"
                         }
                     },
                     "404": {
                         "description": "User not found",
                         "schema": {
-                            "$ref": "#/definitions/utils.APIResponse"
+                            "$ref": "#/definitions/ipl-be-svc_pkg_utils.APIResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/utils.APIResponse"
+                            "$ref": "#/definitions/ipl-be-svc_pkg_utils.APIResponse"
                         }
                     }
                 }
@@ -206,40 +305,35 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "handler.MenuResponse": {
+        "internal_handler.BulkBillingRequest": {
             "type": "object",
+            "required": [
+                "month",
+                "year"
+            ],
             "properties": {
-                "document_id": {
-                    "type": "string",
-                    "example": "mo5qqs8ezbruui07t91p6da8"
-                },
-                "id": {
+                "month": {
+                    "description": "Month 1-12",
                     "type": "integer",
-                    "example": 1
+                    "maximum": 12,
+                    "minimum": 1
                 },
-                "is_active": {
-                    "type": "boolean",
-                    "example": true
+                "user_ids": {
+                    "description": "Empty means all penghuni users",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
-                "kode_menu": {
-                    "type": "string",
-                    "example": "master-data"
-                },
-                "nama_menu": {
-                    "type": "string",
-                    "example": "Master Data"
-                },
-                "published_at": {
-                    "type": "string",
-                    "example": "2025-10-23T15:16:28.206Z"
-                },
-                "urutan_menu": {
+                "year": {
+                    "description": "Reasonable year range",
                     "type": "integer",
-                    "example": 1
+                    "maximum": 2100,
+                    "minimum": 2020
                 }
             }
         },
-        "handler.UserDetailResponse": {
+        "internal_handler.UserDetailResponse": {
             "type": "object",
             "properties": {
                 "document_id": {
@@ -284,7 +378,108 @@ const docTemplate = `{
                 }
             }
         },
-        "service.PaymentLinkResponse": {
+        "ipl-be-svc_internal_models_response.MenuResponse": {
+            "type": "object",
+            "properties": {
+                "document_id": {
+                    "type": "string",
+                    "example": "mo5qqs8ezbruui07t91p6da8"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "is_active": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "kode_menu": {
+                    "type": "string",
+                    "example": "master-data"
+                },
+                "nama_menu": {
+                    "type": "string",
+                    "example": "Master Data"
+                },
+                "published_at": {
+                    "type": "string",
+                    "example": "2025-10-23T15:16:28.206Z"
+                },
+                "urutan_menu": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "ipl-be-svc_internal_models_response.PenghuniUserResponse": {
+            "type": "object",
+            "properties": {
+                "document_id": {
+                    "type": "string",
+                    "example": "abc123def456"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "john.doe@example.com"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "nama_penghuni": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "no_hp": {
+                    "type": "string",
+                    "example": "+6281234567890"
+                },
+                "no_telp": {
+                    "type": "string",
+                    "example": "021-12345678"
+                },
+                "role_id": {
+                    "type": "integer",
+                    "example": 5
+                },
+                "role_name": {
+                    "type": "string",
+                    "example": "Penghuni"
+                },
+                "role_type": {
+                    "type": "string",
+                    "example": "penghuni"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "john_doe"
+                }
+            }
+        },
+        "ipl-be-svc_internal_service.BulkBillingResponse": {
+            "type": "object",
+            "properties": {
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "failed_count": {
+                    "type": "integer"
+                },
+                "success_count": {
+                    "type": "integer"
+                },
+                "total_billings": {
+                    "type": "integer"
+                },
+                "total_users": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ipl-be-svc_internal_service.PaymentLinkResponse": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -301,7 +496,7 @@ const docTemplate = `{
                 }
             }
         },
-        "utils.APIResponse": {
+        "ipl-be-svc_pkg_utils.APIResponse": {
             "description": "Standard API response structure",
             "type": "object",
             "properties": {

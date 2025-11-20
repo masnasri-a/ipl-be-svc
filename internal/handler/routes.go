@@ -15,12 +15,14 @@ func SetupRoutes(
 	menuService service.MenuService,
 	paymentService service.PaymentService,
 	userService service.UserService,
+	billingService service.BillingService,
 	logger *logger.Logger,
 ) {
 	// Initialize handlers
 	menuHandler := NewMenuHandler(menuService)
 	paymentHandler := NewPaymentHandler(paymentService, logger)
 	userHandler := NewUserHandler(userService, logger)
+	bulkBillingHandler := NewBulkBillingHandler(billingService, logger)
 
 	// Swagger documentation
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -47,6 +49,13 @@ func SetupRoutes(
 		users := v1.Group("/users")
 		{
 			users.GET("/profile/:user_id", userHandler.GetUserDetailByProfileID)
+			users.GET("/penghuni", userHandler.GetPenghuniUsers)
+		}
+
+		// Billing routes
+		billings := v1.Group("/billings")
+		{
+			billings.POST("/bulk-monthly", bulkBillingHandler.CreateBulkMonthlyBillings)
 		}
 	}
 }

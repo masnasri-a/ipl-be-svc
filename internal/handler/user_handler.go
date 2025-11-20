@@ -3,6 +3,7 @@ package handler
 import (
 	"strconv"
 
+	"ipl-be-svc/internal/models/response"
 	"ipl-be-svc/internal/service"
 	"ipl-be-svc/pkg/logger"
 	"ipl-be-svc/pkg/utils"
@@ -96,4 +97,44 @@ func (h *UserHandler) GetUserDetailByProfileID(c *gin.Context) {
 	}).Info("User detail retrieved successfully")
 
 	utils.SuccessResponse(c, "User detail retrieved successfully", response)
+}
+
+// GetPenghuniUsers handles GET /api/v1/users/penghuni
+// @Summary Get all penghuni users
+// @Description Get list of all users with role type "penghuni"
+// @Tags users
+// @Accept json
+// @Produce json
+// @Success 200 {object} utils.APIResponse{data=[]response.PenghuniUserResponse} "Penghuni users retrieved successfully"
+// @Failure 500 {object} utils.APIResponse "Internal server error"
+// @Router /api/v1/users/penghuni [get]
+func (h *UserHandler) GetPenghuniUsers(c *gin.Context) {
+	// Get penghuni users
+	users, err := h.userService.GetPenghuniUsers()
+	if err != nil {
+		h.logger.WithError(err).Error("Failed to get penghuni users")
+		utils.InternalServerErrorResponse(c, "Failed to get penghuni users", err)
+		return
+	}
+
+	// Convert to response format
+	var responses []response.PenghuniUserResponse
+	for _, user := range users {
+		responses = append(responses, response.PenghuniUserResponse{
+			ID:           user.ID,
+			Username:     user.Username,
+			Email:        user.Email,
+			NamaPenghuni: user.NamaPenghuni,
+			NoHP:         user.NoHP,
+			NoTelp:       user.NoTelp,
+			DocumentID:   user.DocumentID,
+			RoleName:     user.RoleName,
+			RoleID:       user.RoleID,
+			RoleType:     user.RoleType,
+		})
+	}
+
+	h.logger.WithField("count", len(responses)).Info("Penghuni users retrieved successfully")
+
+	utils.SuccessResponse(c, "Penghuni users retrieved successfully", responses)
 }

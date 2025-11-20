@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"ipl-be-svc/internal/models/response"
 	"ipl-be-svc/internal/service"
 	"ipl-be-svc/pkg/utils"
 )
@@ -21,17 +22,6 @@ func NewMenuHandler(menuService service.MenuService) *MenuHandler {
 	}
 }
 
-// MenuResponse represents the menu response structure
-type MenuResponse struct {
-	ID          uint    `json:"id" example:"1"`
-	DocumentID  string  `json:"document_id" example:"mo5qqs8ezbruui07t91p6da8"`
-	NamaMenu    string  `json:"nama_menu" example:"Master Data"`
-	KodeMenu    string  `json:"kode_menu" example:"master-data"`
-	UrutanMenu  *int    `json:"urutan_menu" example:"1"`
-	IsActive    *bool   `json:"is_active" example:"true"`
-	PublishedAt *string `json:"published_at,omitempty" example:"2025-10-23T15:16:28.206Z"`
-}
-
 // GetMenusByUserID handles GET /api/v1/menus/user/:user_id
 // @Summary Get menus by user ID
 // @Description Get list of menus accessible by a specific user ID
@@ -39,7 +29,7 @@ type MenuResponse struct {
 // @Accept json
 // @Produce json
 // @Param user_id path int true "User ID"
-// @Success 200 {object} utils.APIResponse{data=[]MenuResponse} "Menus retrieved successfully"
+// @Success 200 {object} utils.APIResponse{data=[]response.MenuResponse} "Menus retrieved successfully"
 // @Failure 400 {object} utils.APIResponse "Invalid user ID"
 // @Failure 404 {object} utils.APIResponse "No menus found"
 // @Failure 500 {object} utils.APIResponse "Internal server error"
@@ -67,7 +57,7 @@ func (h *MenuHandler) GetMenusByUserID(c *gin.Context) {
 	}
 
 	// Convert to response format
-	var menuResponses []MenuResponse
+	var menuResponses []response.MenuResponse
 	for _, menu := range menus {
 		var publishedAt *string
 		if menu.PublishedAt != nil {
@@ -75,7 +65,7 @@ func (h *MenuHandler) GetMenusByUserID(c *gin.Context) {
 			publishedAt = &pubAt
 		}
 
-		menuResponses = append(menuResponses, MenuResponse{
+		menuResponses = append(menuResponses, response.MenuResponse{
 			ID:          menu.ID,
 			DocumentID:  menu.DocumentID,
 			NamaMenu:    menu.NamaMenu,

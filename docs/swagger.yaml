@@ -1,30 +1,27 @@
 basePath: /api/v1
 definitions:
-  handler.MenuResponse:
+  internal_handler.BulkBillingRequest:
     properties:
-      document_id:
-        example: mo5qqs8ezbruui07t91p6da8
-        type: string
-      id:
-        example: 1
+      month:
+        description: Month 1-12
+        maximum: 12
+        minimum: 1
         type: integer
-      is_active:
-        example: true
-        type: boolean
-      kode_menu:
-        example: master-data
-        type: string
-      nama_menu:
-        example: Master Data
-        type: string
-      published_at:
-        example: "2025-10-23T15:16:28.206Z"
-        type: string
-      urutan_menu:
-        example: 1
+      user_ids:
+        description: Empty means all penghuni users
+        items:
+          type: integer
+        type: array
+      year:
+        description: Reasonable year range
+        maximum: 2100
+        minimum: 2020
         type: integer
+    required:
+    - month
+    - year
     type: object
-  handler.UserDetailResponse:
+  internal_handler.UserDetailResponse:
     properties:
       document_id:
         example: abc123def456
@@ -57,7 +54,79 @@ definitions:
         example: 123
         type: integer
     type: object
-  service.PaymentLinkResponse:
+  ipl-be-svc_internal_models_response.MenuResponse:
+    properties:
+      document_id:
+        example: mo5qqs8ezbruui07t91p6da8
+        type: string
+      id:
+        example: 1
+        type: integer
+      is_active:
+        example: true
+        type: boolean
+      kode_menu:
+        example: master-data
+        type: string
+      nama_menu:
+        example: Master Data
+        type: string
+      published_at:
+        example: "2025-10-23T15:16:28.206Z"
+        type: string
+      urutan_menu:
+        example: 1
+        type: integer
+    type: object
+  ipl-be-svc_internal_models_response.PenghuniUserResponse:
+    properties:
+      document_id:
+        example: abc123def456
+        type: string
+      email:
+        example: john.doe@example.com
+        type: string
+      id:
+        example: 1
+        type: integer
+      nama_penghuni:
+        example: John Doe
+        type: string
+      no_hp:
+        example: "+6281234567890"
+        type: string
+      no_telp:
+        example: 021-12345678
+        type: string
+      role_id:
+        example: 5
+        type: integer
+      role_name:
+        example: Penghuni
+        type: string
+      role_type:
+        example: penghuni
+        type: string
+      username:
+        example: john_doe
+        type: string
+    type: object
+  ipl-be-svc_internal_service.BulkBillingResponse:
+    properties:
+      errors:
+        items:
+          type: string
+        type: array
+      failed_count:
+        type: integer
+      success_count:
+        type: integer
+      total_billings:
+        type: integer
+      total_users:
+        type: integer
+    type: object
+  ipl-be-svc_internal_service.PaymentLinkResponse:
     properties:
       amount:
         type: integer
@@ -68,7 +137,7 @@ definitions:
       payment_url:
         type: string
     type: object
-  utils.APIResponse:
+  ipl-be-svc_pkg_utils.APIResponse:
     description: Standard API response structure
     properties:
       data: {}
@@ -95,6 +164,44 @@ info:
   title: IPL Backend Service API
   version: "1.0"
 paths:
+  /api/v1/billings/bulk-monthly:
+    post:
+      consumes:
+      - application/json
+      description: Create monthly billings for specified user IDs or all penghuni
+        users if user_ids is empty. Requires auth-token cookie.
+      parameters:
+      - description: Bulk billing request with month and year
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.BulkBillingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Bulk billing creation result
+          schema:
+            $ref: '#/definitions/ipl-be-svc_internal_service.BulkBillingResponse'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create bulk monthly billings
+      tags:
+      - billings
   /api/v1/menus/user/{user_id}:
     get:
       consumes:
@@ -113,25 +220,25 @@ paths:
           description: Menus retrieved successfully
           schema:
             allOf:
-            - $ref: '#/definitions/utils.APIResponse'
+            - $ref: '#/definitions/ipl-be-svc_pkg_utils.APIResponse'
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/handler.MenuResponse'
+                    $ref: '#/definitions/ipl-be-svc_internal_models_response.MenuResponse'
                   type: array
               type: object
         "400":
           description: Invalid user ID
           schema:
-            $ref: '#/definitions/utils.APIResponse'
+            $ref: '#/definitions/ipl-be-svc_pkg_utils.APIResponse'
         "404":
           description: No menus found
           schema:
-            $ref: '#/definitions/utils.APIResponse'
+            $ref: '#/definitions/ipl-be-svc_pkg_utils.APIResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/utils.APIResponse'
+            $ref: '#/definitions/ipl-be-svc_pkg_utils.APIResponse'
       summary: Get menus by user ID
       tags:
       - menus
@@ -152,7 +259,7 @@ paths:
         "200":
           description: Payment link created successfully
           schema:
-            $ref: '#/definitions/service.PaymentLinkResponse'
+            $ref: '#/definitions/ipl-be-svc_internal_service.PaymentLinkResponse'
         "400":
           description: Invalid billing ID
           schema:
@@ -171,6 +278,32 @@ paths:
       summary: Create payment link
       tags:
       - payments
+  /api/v1/users/penghuni:
+    get:
+      consumes:
+      - application/json
+      description: Get list of all users with role type "penghuni"
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Penghuni users retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/ipl-be-svc_pkg_utils.APIResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/ipl-be-svc_internal_models_response.PenghuniUserResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ipl-be-svc_pkg_utils.APIResponse'
+      summary: Get all penghuni users
+      tags:
+      - users
   /api/v1/users/profile/{user_id}:
     get:
       consumes:
@@ -189,23 +322,23 @@ paths:
           description: User detail retrieved successfully
           schema:
             allOf:
-            - $ref: '#/definitions/utils.APIResponse'
+            - $ref: '#/definitions/ipl-be-svc_pkg_utils.APIResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.UserDetailResponse'
+                  $ref: '#/definitions/internal_handler.UserDetailResponse'
               type: object
         "400":
           description: Invalid user ID
           schema:
-            $ref: '#/definitions/utils.APIResponse'
+            $ref: '#/definitions/ipl-be-svc_pkg_utils.APIResponse'
         "404":
           description: User not found
           schema:
-            $ref: '#/definitions/utils.APIResponse'
+            $ref: '#/definitions/ipl-be-svc_pkg_utils.APIResponse'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/utils.APIResponse'
+            $ref: '#/definitions/ipl-be-svc_pkg_utils.APIResponse'
       summary: Get user detail by profile ID
       tags:
       - users
