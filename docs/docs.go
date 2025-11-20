@@ -144,6 +144,61 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/payments/billing/link": {
+            "post": {
+                "description": "Create a DOKU payment link for multiple billing records by IDs",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payments"
+                ],
+                "summary": "Create payment link for multiple billings",
+                "parameters": [
+                    {
+                        "description": "Billing IDs",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreatePaymentLinkMultipleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payment link created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/service.PaymentLinkResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid billing IDs",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Billing not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/payments/billing/{id}/link": {
             "post": {
                 "description": "Create a DOKU payment link for a billing record by ID",
@@ -488,6 +543,12 @@ const docTemplate = `{
                 "billing_id": {
                     "type": "integer"
                 },
+                "billing_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
                 "description": {
                     "type": "string"
                 },
@@ -511,6 +572,41 @@ const docTemplate = `{
                 "success": {
                     "type": "boolean",
                     "example": true
+                }
+            }
+        },
+        "utils.PaginatedResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "error": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "pagination": {
+                    "$ref": "#/definitions/utils.PaginationResponse"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "utils.PaginationResponse": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "total_pages": {
+                    "type": "integer"
                 }
             }
         }

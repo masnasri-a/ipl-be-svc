@@ -132,6 +132,10 @@ definitions:
         type: integer
       billing_id:
         type: integer
+      billing_ids:
+        items:
+          type: integer
+        type: array
       description:
         type: string
       payment_url:
@@ -149,6 +153,29 @@ definitions:
       success:
         example: true
         type: boolean
+    type: object
+  utils.PaginatedResponse:
+    properties:
+      data: {}
+      error:
+        type: string
+      message:
+        type: string
+      pagination:
+        $ref: '#/definitions/utils.PaginationResponse'
+      success:
+        type: boolean
+    type: object
+  utils.PaginationResponse:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
     type: object
 host: localhost:8080
 info:
